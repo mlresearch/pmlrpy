@@ -41,7 +41,7 @@ def test_unicode_replacement(test_bib_file, tmp_path):
     assert 'fl' in content          # ﬂ ligature should be replaced
     assert '\\"{u}' in content      # ü should be replaced with properly escaped and braced version
 
-def test_real_corl_file(tmp_path):
+def test_real_test_entries_file(tmp_path):
     output_file = str(tmp_path / "test-entries_fixed.bib")
     
     # Process the input file
@@ -173,10 +173,10 @@ def test_complex_entry(tmp_path, caplog, base_proceedings):
 
 def test_issues():
     # Process the file
-    check_and_fix_bibtex('test/corl24.bib', 'test/corl24_fixed.bib')
+    check_and_fix_bibtex('test/test-entries.bib', 'test/test-entries_fixed.bib')
 
     # Read and parse the output file
-    with open('test/corl24_fixed.bib') as f:
+    with open('test/test-entries_fixed.bib') as f:
         parser = BibTexParser()
         bib_database = bibtexparser.load(f, parser)
 
@@ -189,7 +189,7 @@ def test_issues():
     assert 'J\\o{}rgen' in entry['author']
     
     # Clean up
-    os.remove('test/corl24_fixed.bib') 
+    os.remove('test/test-entries_fixed.bib') 
 
 def test_proceedings_entry(tmp_path):
     """Test validation of Proceedings entry fields"""
