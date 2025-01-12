@@ -43,7 +43,6 @@ This script helps conference organizers prepare their BibTeX files for submissio
   - pages
   - abstract
 
-- Checks entry ID format (lastnameYY[a-z]?)
 
 ### Fixes
 - Replaces common Unicode characters with LaTeX equivalents:
