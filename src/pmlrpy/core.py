@@ -223,33 +223,28 @@ def check_and_fix_bibtex(input_file, output_file):
     
     # Check proceedings entry
     logging.debug("Starting proceedings entry check")
+    proceedings_entries = []
+    
     for entry in bib_database.entries:
         # Normalize entry type to title case (Proceedings, InProceedings)
         entry['ENTRYTYPE'] = entry['ENTRYTYPE'].title()
         logging.debug(f"Checking entry type: {entry.get('ENTRYTYPE')} with ID: {entry.get('ID')}")
         
-        # Normalize field names to lowercase
-        entry_keys = list(entry.keys())
-        for key in entry_keys:
-            if key != 'ENTRYTYPE' and key != 'ID':
-                lower_key = key.lower()
-                if key != lower_key:
-                    entry[lower_key] = entry.pop(key)
-                    logging.info(f"Normalized field name from '{key}' to '{lower_key}'")
-
         if entry['ENTRYTYPE'] == 'Proceedings':
             logging.info(f"Found proceedings entry with ID: {entry.get('ID')}")
             proceedings_entries.append(entry)
+            # Check required fields immediately for each proceedings entry
             missing_fields = REQUIRED_PROCEEDINGS_FIELDS - set(entry.keys())
             if missing_fields:
-                msg = f"Missing or empty required field(s) in Proceedings: {', '.join(missing_fields)}"
-                logging.warning(msg)
-                raise Exception(msg)
+                msg = f"Missing required field(s) in Proceedings: {', '.join(missing_fields)}"
+                logging.error(msg)
+                raise ValueError(msg)
 
+    # Move this check after the field validation
     if len(proceedings_entries) != 1:
         msg = f"Found {len(proceedings_entries)} Proceedings entries, expected 1"
-        logging.warning(msg)
-        issues.append(msg)
+        logging.error(msg)
+        raise ValueError(msg)
 
     # Check and fix InProceedings entries
     existing_ids = set()  # Track all IDs we've seen

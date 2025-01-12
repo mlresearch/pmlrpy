@@ -19,9 +19,37 @@ def test_bib_file(tmp_path):
     input_file.write_text(test_content, encoding='utf-8')
     return str(input_file)
 
-def test_unicode_replacement(test_bib_file, tmp_path):
+@pytest.fixture
+def base_proceedings():
+    """Returns a standard proceedings entry required for all tests"""
+    return """@Proceedings{corl2024,
+  booktitle = {Conference on Robot Learning},
+  name = {Conference on Robot Learning},
+  shortname = {CoRL},
+  year = {2024},
+  editor = {Some Editor},
+  volume = {1},
+  start = {2024-01-01},
+  end = {2024-01-05},
+  published = {2024-03-01},
+  address = {Virtual Conference},
+  conference_url = {https://corl2024.org}
+}
+
+"""
+
+def test_unicode_replacement(test_bib_file, tmp_path, base_proceedings):
     output_file = str(tmp_path / "test_fixed.bib")
-    check_and_fix_bibtex(test_bib_file, output_file)
+    
+    # Combine proceedings with test content
+    with open(test_bib_file, 'r', encoding='utf-8') as f:
+        test_content = f.read()
+    
+    combined_content = base_proceedings + test_content
+    input_file = tmp_path / "combined.bib"
+    input_file.write_text(combined_content, encoding='utf-8')
+    
+    check_and_fix_bibtex(str(input_file), output_file)
     
     # Read the output file
     with open(output_file, 'r', encoding='utf-8') as f:
@@ -117,13 +145,13 @@ https://github.com/ntnu-arl/Eurepus-design},
     input_file.write_text(test_content, encoding='utf-8')
     return str(input_file)
 
-def test_complex_entry(tmp_path, caplog):
+def test_complex_entry(tmp_path, caplog, base_proceedings):
     input_file = tmp_path / "test.bib"
     output_file = tmp_path / "test_fixed.bib"
     
-    # Write test entry to file
+    # Write test entry to file with proceedings
     with open(input_file, "w") as f:
-        f.write("""@InProceedings{el-agroudi24,
+        f.write(base_proceedings + """@InProceedings{el-agroudi24,
   title =	 {In-Flight Attitude Control of a Quadruped using Deep
                    Reinforcement Learning},
   section =	 {Poster},
@@ -150,8 +178,8 @@ def test_complex_entry(tmp_path, caplog):
         bib_database = bibtexparser.load(f, parser)
 
     # Check that we got exactly one entry
-    assert len(bib_database.entries) == 1
-    entry = bib_database.entries[0]
+    assert len(bib_database.entries) == 2
+    entry = bib_database.entries[1]
 
     # Verify the warning was logged
     assert any("Software field should contain a single valid URL" in record.message 
@@ -195,25 +223,24 @@ def test_proceedings_entry(tmp_path):
   name = {Conference on Robot Learning},
   year = {2024},
   editor = {Some Editor},
-  volume = {1},
-  # Missing: shortname, start, end, published, address, conference_url
+  volume = {1}
 }""")
 
     # Process the file and capture logs
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         check_and_fix_bibtex(str(input_file), str(output_file))
     
-    # Verify that appropriate warnings were raised for missing fields
-    assert "Missing or empty required field" in str(exc_info.value)
+    # Verify that the error message mentions missing fields
+    assert "Missing required field(s) in Proceedings" in str(exc_info.value)
 
-def test_id_normalization(tmp_path):
+def test_id_normalization(tmp_path, base_proceedings):
     """Test normalization of entry IDs containing Unicode characters"""
     input_file = tmp_path / "test.bib"
     output_file = tmp_path / "test_fixed.bib"
     
     # Create entries with Unicode IDs
     with open(input_file, "w") as f:
-        f.write("""@InProceedings{müller24,
+        f.write(base_proceedings + """@InProceedings{müller24,
   title = {Test Title},
   author = {Test Author},
   pages = {1-10},
@@ -238,13 +265,13 @@ def test_id_normalization(tmp_path):
     assert 'muller24' in ids
     assert 'grosse24' in ids
 
-def test_quote_handling(tmp_path):
+def test_quote_handling(tmp_path, base_proceedings):
     """Test proper handling of different types of quotes"""
     input_file = tmp_path / "test.bib"
     output_file = tmp_path / "test_fixed.bib"
     
     with open(input_file, "w") as f:
-        f.write("""@InProceedings{test24,
+        f.write(base_proceedings + """@InProceedings{test24,
   title = {Test with "smart quotes" and 'single quotes'},
   author = {Test Author},
   pages = {1-10},
@@ -261,14 +288,14 @@ def test_quote_handling(tmp_path):
     assert '\\command{"quoted"}' in content  # Quotes in LaTeX commands should be preserved
     assert '`single\'' in content
 
-def test_field_ordering(tmp_path):
+def test_field_ordering(tmp_path, base_proceedings):
     """Test that fields are ordered correctly in the output"""
     input_file = tmp_path / "test.bib"
     output_file = tmp_path / "test_fixed.bib"
     
     # Create entry with fields in random order
     with open(input_file, "w") as f:
-        f.write("""@InProceedings{test24,
+        f.write(base_proceedings + """@InProceedings{test24,
   video = {http://example.com},
   abstract = {Test abstract},
   author = {Test Author},
@@ -291,13 +318,13 @@ def test_field_ordering(tmp_path):
     
     assert title_pos < author_pos < pages_pos < abstract_pos
 
-def test_latex_escapes_in_abstract(tmp_path):
+def test_latex_escapes_in_abstract(tmp_path, base_proceedings):
     """Test that special LaTeX characters are properly escaped in abstracts"""
     input_file = tmp_path / "test.bib"
     output_file = tmp_path / "test_fixed.bib"
     
     with open(input_file, "w") as f:
-        f.write("""@InProceedings{test24,
+        f.write(base_proceedings + """@InProceedings{test24,
   title = {Test Title},
   author = {Test Author},
   pages = {1-10},
@@ -312,13 +339,13 @@ def test_latex_escapes_in_abstract(tmp_path):
     assert '100\\%' in content
     assert '\\&' in content 
 
-def test_quote_handling_with_brackets(tmp_path):
+def test_quote_handling_with_brackets(tmp_path, base_proceedings):
     """Test proper handling of quotes around brackets and at string boundaries"""
     input_file = tmp_path / "test.bib"
     output_file = tmp_path / "test_fixed.bib"
     
     with open(input_file, "w") as f:
-        f.write("""@InProceedings{test24,
+        f.write(base_proceedings + """@InProceedings{test24,
   title = {"[Bracketed] Title"},
   author = {Test Author},
   pages = {1-10},
