@@ -28,4 +28,97 @@
   abstract = {We present the development and real world demonstration of an in-flight attitude control law for a small low-cost quadruped with a five-bar-linkage leg design using only its legs as reaction masses.},
   software = {https://github.com/ntnu-arl/Eurepus-RL and https://github.com/ntnu-arl/Eurepus-design},
   video = {https://www.youtube.com/watch?v=5qNPCH34M2M&t=1s},
-} 
+}
+
+@InProceedings{goko24,
+  title =	 {Task Success Prediction for Open-Vocabulary
+                  Manipulation Based on Multi-Level Aligned
+                  Representations},
+  section =	 {Poster},
+  author =	 {Goko, Miyu and Kambara, Motonari and Saito, Daichi
+                  and Otsuki, Seitaro and Sugiura, Komei},
+  pages =	 {3242-3263},
+  openreview =	 {QtCtY8zl2T},
+  abstract =	 {In this study, we consider the problem of predicting
+                  task success for open-vocabulary manipulation by a
+                  manipulator, based on instruction sentences and
+                  egocentric images before and after
+                  manipulation. Conventional approaches, including
+                  multimodal large language models (MLLMs), often fail
+                  to appropriately understand detailed characteristics
+                  of objects and/or subtle changes in the position of
+                  objects. We propose Contrastive $\lambda$-Repformer,
+                  which predicts task success for table-top
+                  manipulation tasks by aligning images with
+                  instruction sentences. Our method integrates the
+                  following three key types of features into a
+                  multi-level aligned representation: features that
+                  preserve local image information; features aligned
+                  with natural language; and features structured
+                  through natural language. This allows the model to
+                  focus on important changes by looking at the
+                  differences in the representation between two
+                  images. We evaluate Contrastive $\lambda$-Repformer
+                  on a dataset based on a large-scale standard
+                  dataset, the RT-1 dataset, and on a physical robot
+                  platform. The results show that our approach
+                  outperformed existing approaches including
+                  MLLMs. Our best model achieved an improvement of
+                  8.66 points in accuracy compared to the
+                  representative MLLM-based model.},
+  software =
+                  {https://github.com/keio-smilab24/contrastive-lambda-repformer},
+  video =	 {https://www.youtube.com/watch?v=Do3Ig3HqLN0},
+}
+
+@InProceedings{murray24,
+  title =	 {Teaching Robots with Show and Tell: Using Foundation
+                  Models to Synthesize Robot Policies from Language
+                  and Visual Demonstration},
+  section =	 {Poster},
+  author =	 {Murray, Michael and Gupta, Abhishek and Cakmak,
+                  Maya},
+  pages =	 {4033-4050},
+  openreview =	 {G8UcwxNAoD},
+  abstract =	 {We introduce a modular, neuro-symbolic framework for
+                  teaching robots new skills through language and
+                  visual demonstration. Our approach, ShowTell,
+                  composes a mixture of foundation models to
+                  synthesize robot manipulation programs that are easy
+                  to interpret and generalize across a wide range of
+                  tasks and environments. ShowTell is designed to
+                  handle complex demonstrations involving high level
+                  logic such as loops and conditionals while being
+                  intuitive and natural for end-users. We validate
+                  this approach through a series of real-world robot
+                  experiments, showing that ShowTell out-performs a
+                  state-of-the-art baseline based on GPT4-V, on a
+                  variety of tasks, and that it is able to generalize
+                  to unseen environments and within category objects.}
+}
+
+@InProceedings{ko24a,
+  title =	 {A Planar-Symmetric SO(3) Representation for Learning
+                  Grasp Detection},
+  section =	 {Poster},
+  author =	 {Ko, Tianyi and Ikeda, Takuya and Sato, Hiroya and
+                  Nishiwaki, Koichi},
+  pages =	 {3674-3687},
+  openreview =	 {LmOF7UAOZ7},
+  abstract =	 {Planar-symmetric hands, such as parallel grippers,
+                  are widely adopted in both research and industrial
+                  fields.  Their symmetry, however, introduces
+                  ambiguity and discontinuity in the SO(3)
+                  representation, which hinders both the training and
+                  inference of neural network-based grasp detectors.
+                  We propose a novel SO(3) representation that can
+                  parametrize a pair of planar-symmetric poses with a
+                  single parameter set by leveraging the 2D Bingham
+                  distribution.  We also detail a grasp detector based
+                  on our representation, which provides a more
+                  consistent rotation output.  An intensive evaluation
+                  with multiple grippers and objects in both the
+                  simulation and the real world quantitatively shows
+                  our approach's contribution.},
+  video =	 {https://youtu.be/24JZ9t7ZcI0},
+}

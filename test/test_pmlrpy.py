@@ -68,7 +68,7 @@ def test_specific_entries():
     # Test specific entries we know have issues
     parser = bibtexparser.bparser.BibTexParser()
     
-    with open('test/corl24.bib', 'r', encoding='utf-8') as f:
+    with open('test/test-entries.bib', 'r', encoding='utf-8') as f:
         db = bibtexparser.load(f, parser)
     
     # Check specific entries we saw in the snippets
