@@ -536,44 +536,44 @@ def process_quotes_in_text(text):
     parts = []
     current = 0
     
-    # Pattern matches quotes with context:
-    # - Start of string OR opening bracket/brace/paren OR whitespace
-    # - Followed by quote, content, quote
-    # - End of string OR closing bracket/brace/paren OR whitespace
-    quote_pattern = r'(?:^|[(\[{]|\s)"([^"]*)"(?:$|[)\]}]|\s)'
+    # First handle double quotes
+    quote_pattern = r'(^|.)"([^"]+)"(?:$|.)'
     
     for match in re.finditer(quote_pattern, text):
-        # Add unprocessed text before this match
-        start = match.start()
+        # Add text before this match
+        start = match.start(1)  # Start from the character before quote
         if current < start:
             parts.append(text[current:start])
         
-        # Get context characters and quoted content
-        before = match.group(0)[0]
-        content = match.group(1)
-        after = match.group(0)[-1]
+        before = match.group(1)
+        content = match.group(2)
+        after = match.string[match.end()-1] if match.end() < len(match.string) else ''
         
-        # Preserve context characters if they're brackets
-        if before in '([{':
+        # Add the character before quote if it exists and isn't start of string
+        if before and before != '^':
             parts.append(before)
-        elif before.isspace():
-            parts.append(before)
-        # Add quoted content with LaTeX quotes
-        parts.append(f"``{content}''")
-        if after in ')]}':
-            parts.append(after)
-        elif after.isspace():
+            
+        # Add quoted content with PROTECTED closing quotes
+        parts.append(f"``{content}###CLOSING###")
+        
+        # Add the character after quote if it exists and isn't end of string
+        if after and after != '$':
             parts.append(after)
         
-        current = match.end()
+        current = match.end() if after else match.end() - 1
     
-    # Add remaining unprocessed text
+    # Add remaining text
     if current < len(text):
         parts.append(text[current:])
     
-    # Handle single quotes - using backtick for opening and plain quote for closing
+    # Join the parts
     result = ''.join(parts)
+    
+    # Handle single quotes
     result = re.sub(r"(?<!\w)'([^']+)'(?!\w)", r"`\1'", result)
+    
+    # Replace protected closing quotes
+    result = result.replace("###CLOSING###", "''")
     
     return result
 

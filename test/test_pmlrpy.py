@@ -364,9 +364,9 @@ def test_quote_handling_with_brackets(tmp_path, base_proceedings):
     # Check quote replacements in various contexts
     assert '``[Bracketed] Title\'\'' in content  # Quotes around entire bracketed title
     assert '``[quoted] brackets\'\'' in content    # Quotes around word with brackets after
-    assert '``quoted\'\' parens' in content     # Quotes around word with parens after
-    assert '``quoted\'\' braces' in content     # Quotes around word with braces after
+    assert '``(quoted) parens\'\'' in content     # Quotes around word with parens after
+    assert '``{quoted} braces\'\'' in content     # Quotes around word with braces after
     assert '``string start\'\'' in content      # Quotes at start of string
     assert '``string end\'\'' in content        # Quotes at end of string
     assert '``quoted\'\' words in ``one string\'\'' in content  # Multiple quotes in one string
-    assert '[("quoted")]' in content            # Nested quotes within brackets 
+    assert '[(``quoted\'\')]' in content            # Nested quotes within brackets 
