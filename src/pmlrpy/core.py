@@ -487,39 +487,45 @@ def check_and_fix_bibtex(input_file, output_file):
 
 def replace_quotes(text):
     """Process quotes in text, handling various edge cases."""
-    # First handle quotes within LaTeX commands
+    # First split text into parts: regular text and LaTeX commands
     parts = []
     current = 0
     in_command = False
     command_start = 0
     
+    # Iterate through text to identify LaTeX commands (starting with \)
     for i, char in enumerate(text):
         if char == '\\' and not in_command:
-            # Add text before command
+            # Check if backslash is escaped
+            if i > 0 and text[i-1] == '\\':
+                continue
+                
+            # When we find a command, process any text before it
             if current < i:
                 parts.append(process_quotes_in_text(text[current:i]))
             command_start = i
             in_command = True
         elif in_command and char == '{':
-            # Find matching closing brace
+            # Found opening brace of command argument
+            # Count braces to find matching closing brace
             brace_count = 1
             j = i + 1
             while j < len(text) and brace_count > 0:
-                if text[j] == '{':
+                if text[j] == '{' and (j == 0 or text[j-1] != '\\'):
                     brace_count += 1
-                elif text[j] == '}':
+                elif text[j] == '}' and (j == 0 or text[j-1] != '\\'):
                     brace_count -= 1
                 j += 1
             if brace_count == 0:
-                # Add the entire command unchanged
+                # Found complete command - add it unchanged
                 parts.append(text[command_start:j])
                 current = j
                 in_command = False
             else:
-                # No matching brace found, treat as normal text
+                # No matching brace - treat as normal text
                 in_command = False
                 
-    # Add remaining text
+    # Add any remaining text after last command
     if current < len(text):
         parts.append(process_quotes_in_text(text[current:]))
     
@@ -527,29 +533,32 @@ def replace_quotes(text):
 
 def process_quotes_in_text(text):
     """Process quotes in regular text (not in LaTeX commands)."""
-    # First handle double quotes
     parts = []
     current = 0
     
-    # Pattern for finding quotes, considering context
+    # Pattern matches quotes with context:
+    # - Start of string OR opening bracket/brace/paren OR whitespace
+    # - Followed by quote, content, quote
+    # - End of string OR closing bracket/brace/paren OR whitespace
     quote_pattern = r'(?:^|[(\[{]|\s)"([^"]*)"(?:$|[)\]}]|\s)'
     
     for match in re.finditer(quote_pattern, text):
-        # Add text before the quote
+        # Add unprocessed text before this match
         start = match.start()
         if current < start:
             parts.append(text[current:start])
         
-        # Get the context and quoted content
+        # Get context characters and quoted content
         before = match.group(0)[0]
         content = match.group(1)
         after = match.group(0)[-1]
         
-        # Add the quote with proper formatting
+        # Preserve context characters if they're brackets
         if before in '([{':
             parts.append(before)
         elif before.isspace():
             parts.append(before)
+        # Add quoted content with LaTeX quotes
         parts.append(f"``{content}''")
         if after in ')]}':
             parts.append(after)
@@ -558,11 +567,11 @@ def process_quotes_in_text(text):
         
         current = match.end()
     
-    # Add remaining text
+    # Add remaining unprocessed text
     if current < len(text):
         parts.append(text[current:])
     
-    # Handle single quotes - using plain single quote for closing
+    # Handle single quotes - using backtick for opening and plain quote for closing
     result = ''.join(parts)
     result = re.sub(r"(?<!\w)'([^']+)'(?!\w)", r"`\1'", result)
     
