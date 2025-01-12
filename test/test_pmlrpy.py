@@ -3,18 +3,12 @@ from pmlrpy import check_and_fix_bibtex
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
 import os
+from pathlib import Path
 
 @pytest.fixture
 def test_bib_file(tmp_path):
-    # Create a temporary test file
-    test_content = """
-@InProceedings{test24,
-  title = {Testing λ-Repformer with ﬁ and ﬂ ligatures},
-  author = {Müller, José and Łukasz},
-  abstract = {This is a test with "smart quotes" and em—dash},
-  pages = {1-10},
-}
-"""
+    # Copy test-entries.bib to a temporary location
+    test_content = Path('test/test-entries.bib').read_text(encoding='utf-8')
     input_file = tmp_path / "test.bib"
     input_file.write_text(test_content, encoding='utf-8')
     return str(input_file)
@@ -22,30 +16,16 @@ def test_bib_file(tmp_path):
 @pytest.fixture
 def base_proceedings():
     """Returns a standard proceedings entry required for all tests"""
-    return """@Proceedings{corl2024,
-  booktitle = {Conference on Robot Learning},
-  name = {Conference on Robot Learning},
-  shortname = {CoRL},
-  year = {2024},
-  editor = {Some Editor},
-  volume = {1},
-  start = {2024-01-01},
-  end = {2024-01-05},
-  published = {2024-03-01},
-  address = {Virtual Conference},
-  conference_url = {https://corl2024.org}
-}
+    return Path('test/test-entries.bib').read_text(encoding='utf-8').split('\n\n')[0] + '\n\n'
 
-"""
-
-def test_unicode_replacement(test_bib_file, tmp_path, base_proceedings):
+def test_unicode_replacement(test_bib_file, tmp_path):
     output_file = str(tmp_path / "test_fixed.bib")
     
     # Combine proceedings with test content
     with open(test_bib_file, 'r', encoding='utf-8') as f:
         test_content = f.read()
     
-    combined_content = base_proceedings + test_content
+    combined_content = test_content
     input_file = tmp_path / "combined.bib"
     input_file.write_text(combined_content, encoding='utf-8')
     
@@ -62,10 +42,10 @@ def test_unicode_replacement(test_bib_file, tmp_path, base_proceedings):
     assert '\\"{u}' in content      # ü should be replaced with properly escaped and braced version
 
 def test_real_corl_file(tmp_path):
-    output_file = str(tmp_path / "corl24_fixed.bib")
+    output_file = str(tmp_path / "test-entries_fixed.bib")
     
     # Process the input file
-    check_and_fix_bibtex('test/corl24.bib', output_file)
+    check_and_fix_bibtex('test/test-entries.bib', output_file)
     
     # Read the processed output file
     with open(output_file, 'r', encoding='utf-8') as f:

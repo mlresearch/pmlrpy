@@ -1,5 +1,7 @@
 # PMLR BibTeX Validator and Fixer
 
+[![Tests](https://github.com/mlresearch/pmlrpy/actions/workflows/tests.yml/badge.svg)](https://github.com/mlresearch/pmlrpy/actions/workflows/tests.yml)
+
 A Python script to validate and fix BibTeX files according to the [PMLR Proceedings Specification](https://proceedings.mlr.press/spec.html).
 
 ## Overview
